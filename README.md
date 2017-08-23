@@ -13,7 +13,7 @@ To use your system binary, add this to your parameters.yml.dist file and do a `c
     wucdbm_pdf_generator.binary: wkhtmltopdf
 ```
 
-# Basic Usage
+# Register the bundle in your AppKernel
 
 ```php
 <?php
@@ -26,6 +26,8 @@ public function registerBundles() {
 }
 
 ```
+
+# Basic Usage
 
 ```php
 <?php 
