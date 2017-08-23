@@ -1,0 +1,80 @@
+<?php
+
+namespace Wucdbm\Bundle\PdfGeneratorBundle\Generator;
+
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Process\Process;
+use Wucdbm\Bundle\PdfGeneratorBundle\Generator\Exception\GenerationFailedException;
+
+class PrintResult {
+
+    const ON_ERROR_EMPTY_RESPONSE = 1,
+        ON_ERROR_EXCEPTION = 2,
+        ON_ERROR_500_RESPONSE = 3;
+
+    /** @var File */
+    protected $file;
+
+    /** @var string */
+    protected $path;
+
+    /** @var Process */
+    protected $process;
+
+    public function __construct(string $path, Process $process) {
+        $this->path = $path;
+        $this->process = $process;
+    }
+
+    public function realPath() {
+        $this->wait();
+
+        return $this->file->getRealPath();
+    }
+
+    public function contents() {
+        $this->wait();
+
+        return file_get_contents($this->file->getRealPath());
+    }
+
+    public function response(string $filename, $onError = self::ON_ERROR_EMPTY_RESPONSE): Response {
+        try {
+            $this->wait();
+        } catch (GenerationFailedException $e) {
+            switch ($onError) {
+                case self::ON_ERROR_EMPTY_RESPONSE:
+                    return new Response();
+                    break;
+                case self::ON_ERROR_EXCEPTION:
+                    throw $e;
+                    break;
+                case self::ON_ERROR_500_RESPONSE;
+                    return new Response(sprintf("wkhtmltopdf failed: \n\nError Output: \n\n%s\n\nOutput: \n\n%s", $e->getErrorOutput(), $e->getOutput()), Response::HTTP_INTERNAL_SERVER_ERROR);
+                    break;
+            }
+
+            return new Response();
+        }
+
+        $response = new BinaryFileResponse($this->file);
+
+        $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
+        $response->headers->set('Content-type', 'application/pdf');
+
+        return $response;
+    }
+
+    private function wait() {
+        $this->process->wait();
+
+        if (!$this->process->isSuccessful()) {
+            throw GenerationFailedException::create($this->process->getOutput(), $this->process->getErrorOutput());
+        }
+
+        $this->file = new File($this->path);
+    }
+
+}

@@ -1,0 +1,21 @@
+{
+    "name": "wucdbm/pdf-generator-bundle",
+    "type": "symfony-bundle",
+    "description": "Quick UI helpers for Symfony projects",
+    "keywords": ["symfony pdf generator", "html to pdf", "symfony html pdf", "pdf bundle", "wucdbm"],
+    "authors": [
+        {
+            "name": "Martin Kirilov",
+            "email": "wucdbm@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~7.1",
+        "symfony/symfony": "~2.0|~3.0"
+    },
+    "autoload": {
+        "psr-4": { "Wucdbm\\Bundle\\PdfGeneratorBundle\\": "" }
+    },
+    "license": "GPL-3.0"
+}
