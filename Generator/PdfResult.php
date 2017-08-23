@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
 use Wucdbm\Bundle\PdfGeneratorBundle\Generator\Exception\GenerationFailedException;
 
-class PrintResult {
+class PdfResult {
 
     const ON_ERROR_EMPTY_RESPONSE = 1,
         ON_ERROR_EXCEPTION = 2,
@@ -28,16 +28,24 @@ class PrintResult {
         $this->process = $process;
     }
 
-    public function realPath() {
+    public function realPath(): string {
         $this->wait();
 
         return $this->file->getRealPath();
     }
 
-    public function contents() {
-        $this->wait();
+    public function contents(): string {
+        return file_get_contents($this->realPath());
+    }
 
-        return file_get_contents($this->file->getRealPath());
+    /**
+     * @param string $location
+     * @return static
+     */
+    public function copy(string $location) {
+        copy($this->realPath(), $location);
+
+        return $this;
     }
 
     public function response(string $filename, $onError = self::ON_ERROR_EMPTY_RESPONSE): Response {

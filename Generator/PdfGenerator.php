@@ -3,7 +3,6 @@
 namespace Wucdbm\Bundle\PdfGeneratorBundle\Generator;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Process\Process;
@@ -38,11 +37,11 @@ class PdfGenerator {
         $this->requestStack = $requestStack;
     }
 
-    public function bootstrap(string $html): PrintResult {
+    public function bootstrap(string $html): PdfResult {
         return $this->wkPrint($this->layoutBootstrap($html));
     }
 
-    public function wkPrint(string $html): PrintResult {
+    public function wkPrint(string $html): PdfResult {
         $cwd = sprintf('%s/wkhtmltopdf', $this->cacheDir);
 
         if (!is_dir($cwd)) {
@@ -75,7 +74,7 @@ class PdfGenerator {
             }, 255);
         }
 
-        return new PrintResult($pdfFile, $process);
+        return $this->createResult($pdfFile, $process);
     }
 
     protected function layoutBootstrap(string $html): string {
@@ -97,6 +96,10 @@ class PdfGenerator {
         $html = str_replace('src="/bundles', 'src="' . $replace, $html);
 
         return str_replace($find, $replace, $html);
+    }
+
+    protected function createResult(string $pdfFile, Process $process) {
+        return new PdfResult($pdfFile, $process);
     }
 
 }
