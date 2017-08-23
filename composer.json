@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": "~7.0",
-        "symfony/symfony": "~2.0|~3.0"
+        "symfony/symfony": "~2.0|~3.0",
+        "h4cc/wkhtmltopdf-i386": "0.12.3"
     },
     "autoload": {
         "psr-4": { "Wucdbm\\Bundle\\PdfGeneratorBundle\\": "" }
