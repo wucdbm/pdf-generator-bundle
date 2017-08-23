@@ -16,6 +16,18 @@ To use your system binary, add this to your parameters.yml.dist file and do a `c
 # Basic Usage
 
 ```php
+<?php
+public function registerBundles() {
+    $bundles = [
+        new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+        // Add WucdbmPdfGeneratorBundle to your AppKernel
+        new \Wucdbm\Bundle\PdfGeneratorBundle\WucdbmPdfGeneratorBundle(),
+    ];
+}
+
+```
+
+```php
 <?php 
 /** @var \Wucdbm\Bundle\PdfGeneratorBundle\Generator\PdfGenerator $generator */
 $generator = $container->get('wucdbm_pdf_generator.generator');
