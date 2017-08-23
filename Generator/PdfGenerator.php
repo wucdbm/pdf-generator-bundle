@@ -3,9 +3,11 @@
 namespace Wucdbm\Bundle\PdfGeneratorBundle\Generator;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Process\Process;
+use Wucdbm\Bundle\PdfGeneratorBundle\Generator\Exception\BinaryNotExecutableException;
 
 class PdfGenerator {
 
@@ -47,16 +49,16 @@ class PdfGenerator {
             mkdir($cwd, 0755, true);
         }
 
-        $name = uniqid();
-        $htmlName = sprintf('%s.html', $name);
-        $pdfName = sprintf('%s.pdf', $name);
+        $tempName = uniqid();
+        $htmlName = sprintf('%s.html', $tempName);
+        $pdfName = sprintf('%s.pdf', $tempName);
         $htmlFile = sprintf('%s/%s', $cwd, $htmlName);
         $pdfFile = sprintf('%s/%s', $cwd, $pdfName);
 
         $html = $this->replaceUrlsWithFilesystemPath($html);
 
         file_put_contents($htmlFile, $html);
-        $command = sprintf('cd %s && xvfb-run %s %s %s', $cwd, $this->binary, $htmlName, $pdfName);
+        $command = sprintf('cd %s && xvfb-run %s %s %s', escapeshellarg($cwd), escapeshellarg($this->binary), $htmlName, $pdfName);
 
         $process = new Process($command);
         $process->run();
@@ -76,7 +78,7 @@ class PdfGenerator {
         return new PrintResult($pdfFile, $process);
     }
 
-    private function layoutBootstrap(string $html): string {
+    protected function layoutBootstrap(string $html): string {
         $data = [
             'html' => $html
         ];
@@ -84,7 +86,7 @@ class PdfGenerator {
         return $this->twig->render('@WucdbmPdfGenerator/layout_bootstrap.html.twig', $data);
     }
 
-    private function replaceUrlsWithFilesystemPath($html): string {
+    protected function replaceUrlsWithFilesystemPath($html): string {
         $request = $this->requestStack->getCurrentRequest();
         $schemeAndHost = $request->getSchemeAndHttpHost();
 
