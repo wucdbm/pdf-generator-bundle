@@ -2,11 +2,17 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+
+    <parameters>
+        <parameter key="wucdbm_pdf_generator.binary">%kernel.root_dir%/../bin/wkhtmltopdf-i386</parameter>
+    </parameters>
+
     <services>
 
         <service id="wucdbm_pdf_generator.generator" class="Wucdbm\Bundle\PdfGeneratorBundle\Generator\PdfGenerator">
             <argument>%kernel.cache_dir%</argument>
-            <argument>%kernel.root_dir%%</argument>
+            <argument>%kernel.root_dir%</argument>
+            <argument>%wucdbm_pdf_generator.binary%</argument>
             <argument type="service" id="twig"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="request_stack"/>

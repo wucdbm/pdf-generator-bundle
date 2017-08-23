@@ -15,6 +15,9 @@ class PdfGenerator {
     /** @var string */
     protected $rootDir;
 
+    /** @var string */
+    protected $binary;
+
     /** @var \Twig_Environment */
     protected $twig;
 
@@ -24,9 +27,10 @@ class PdfGenerator {
     /** @var RequestStack */
     protected $requestStack;
 
-    public function __construct($cacheDir, $rootDir, \Twig_Environment $twig, EventDispatcherInterface $eventDispatcher, RequestStack $requestStack) {
+    public function __construct(string $cacheDir, string $rootDir, string $binary, \Twig_Environment $twig, EventDispatcherInterface $eventDispatcher, RequestStack $requestStack) {
         $this->cacheDir = $cacheDir;
         $this->rootDir = $rootDir;
+        $this->binary = $binary;
         $this->twig = $twig;
         $this->eventDispatcher = $eventDispatcher;
         $this->requestStack = $requestStack;
@@ -52,7 +56,7 @@ class PdfGenerator {
         $html = $this->replaceUrlsWithFilesystemPath($html);
 
         file_put_contents($htmlFile, $html);
-        $command = sprintf('cd %s && xvfb-run wkhtmltopdf %s %s', $cwd, $htmlName, $pdfName);
+        $command = sprintf('cd %s && xvfb-run %s %s %s', $cwd, $this->binary, $htmlName, $pdfName);
 
         $process = new Process($command);
         $process->run();
