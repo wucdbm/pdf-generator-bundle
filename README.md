@@ -48,3 +48,8 @@ return $generator->bootstrap($html)->copy('/some/location/someFile.pdf')->respon
 // And last, you can also get the PDF file contents as string
 $contents = $generator->bootstrap($html)->contents();
 ```
+
+# TODO 
+
+- https://www.npmjs.com/package/chrome-headless-render-pdf
+- http://weasyprint.readthedocs.io/en/latest/install.html
