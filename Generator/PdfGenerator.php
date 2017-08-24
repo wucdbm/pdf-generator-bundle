@@ -42,6 +42,8 @@ class PdfGenerator {
     }
 
     public function wkPrint(string $html): PdfResult {
+        $html = $this->replaceUrlsWithFilesystemPath($html);
+
         $cwd = sprintf('%s/wkhtmltopdf', $this->cacheDir);
 
         if (!is_dir($cwd)) {
@@ -54,25 +56,21 @@ class PdfGenerator {
         $htmlFile = sprintf('%s/%s', $cwd, $htmlName);
         $pdfFile = sprintf('%s/%s', $cwd, $pdfName);
 
-        $html = $this->replaceUrlsWithFilesystemPath($html);
-
         file_put_contents($htmlFile, $html);
         $command = sprintf('cd %s && xvfb-run %s %s %s', escapeshellarg($cwd), escapeshellarg($this->binary), $htmlName, $pdfName);
 
         $process = new Process($command);
-        $process->run();
+        $process->start();
 
-        if ($process->isSuccessful()) {
-            $this->eventDispatcher->addListener(KernelEvents::TERMINATE, function () use ($htmlFile, $pdfFile) {
-                if (file_exists($htmlFile)) {
-                    unlink($htmlFile);
-                }
+        $this->eventDispatcher->addListener(KernelEvents::TERMINATE, function () use ($htmlFile, $pdfFile) {
+            if (file_exists($htmlFile)) {
+                unlink($htmlFile);
+            }
 
-                if (file_exists($pdfFile)) {
-                    unlink($pdfFile);
-                }
-            }, 255);
-        }
+            if (file_exists($pdfFile)) {
+                unlink($pdfFile);
+            }
+        }, 255);
 
         return $this->createResult($pdfFile, $process);
     }
