@@ -6,7 +6,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Process\Process;
-use Wucdbm\Bundle\PdfGeneratorBundle\Generator\Exception\BinaryNotExecutableException;
 
 class PdfGenerator {
 
