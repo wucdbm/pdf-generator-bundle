@@ -6,6 +6,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Routing\RequestContext;
+use Wucdbm\Bundle\PdfGeneratorBundle\Generator\Exception\CouldNotDetermineSchemeAndHostException;
 
 class PdfGenerator {
 
@@ -27,7 +29,12 @@ class PdfGenerator {
     /** @var RequestStack */
     protected $requestStack;
 
-    public function __construct(string $cacheDir, string $rootDir, string $binary, \Twig_Environment $twig, EventDispatcherInterface $eventDispatcher, RequestStack $requestStack) {
+    /** @var RequestContext|null */
+    protected $requestContext;
+
+    public function __construct(string $cacheDir, string $rootDir, string $binary,
+                                \Twig_Environment $twig, EventDispatcherInterface $eventDispatcher,
+                                RequestStack $requestStack, RequestContext $requestContext = null) {
         $this->cacheDir = $cacheDir;
         $this->rootDir = $rootDir;
         $this->binary = $binary;
@@ -83,8 +90,11 @@ class PdfGenerator {
     }
 
     protected function replaceUrlsWithFilesystemPath($html): string {
-        $request = $this->requestStack->getCurrentRequest();
-        $schemeAndHost = $request->getSchemeAndHttpHost();
+        try {
+            $schemeAndHost = $this->getSchemeAndHttpHost();
+        } catch (CouldNotDetermineSchemeAndHostException $e) {
+            return $html;
+        }
 
         $find = sprintf('%s/bundles', $schemeAndHost);
 
@@ -93,6 +103,25 @@ class PdfGenerator {
         $html = str_replace('src="/bundles', 'src="' . $replace, $html);
 
         return str_replace($find, $replace, $html);
+    }
+
+    protected function getSchemeAndHttpHost(): string {
+        $request = $this->requestStack->getCurrentRequest();
+
+        if ($request) {
+            return $request->getSchemeAndHttpHost();
+        }
+
+        if ($this->requestContext) {
+            $scheme = $this->requestContext->getScheme();
+            $host = $this->requestContext->getHost();
+
+            if ($scheme && $host) {
+                return sprintf('%s://%s', $scheme, $host);
+            }
+        }
+
+        throw new CouldNotDetermineSchemeAndHostException();
     }
 
     protected function createResult(string $pdfFile, Process $process) {
