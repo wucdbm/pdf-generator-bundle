@@ -12,6 +12,7 @@ class GenerationFailedException extends \Exception {
 
     public static function create(string $output, string $errorOutput) {
         $instance = new static();
+        $instance->message = $errorOutput;
         $instance->setOutput($output);
         $instance->setErrorOutput($errorOutput);
 
