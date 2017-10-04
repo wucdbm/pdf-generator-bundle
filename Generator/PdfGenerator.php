@@ -63,7 +63,7 @@ class PdfGenerator {
         $pdfFile = sprintf('%s/%s', $cwd, $pdfName);
 
         file_put_contents($htmlFile, $html);
-        $command = sprintf('cd %s && xvfb-run %s %s %s', escapeshellarg($cwd), escapeshellarg($this->binary), $htmlName, $pdfName);
+        $command = sprintf('cd %s && xvfb-run -a %s %s %s', escapeshellarg($cwd), escapeshellarg($this->binary), $htmlName, $pdfName);
 
         $process = new Process($command);
         $process->start();
