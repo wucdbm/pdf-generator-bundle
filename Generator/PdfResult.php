@@ -70,7 +70,7 @@ class PdfResult {
         $response = new BinaryFileResponse($this->file);
 
         $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
-        $response->headers->set('Content-type', 'application/pdf');
+        $response->headers->set('Content-Type', 'application/pdf');
 
         return $response;
     }
