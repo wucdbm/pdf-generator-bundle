@@ -12,8 +12,13 @@
     ],
     "require": {
         "php": "~7.0",
-        "symfony/symfony": "~2.0|~3.0",
-        "h4cc/wkhtmltopdf-i386": "0.12.3"
+        "symfony/symfony": "~2.0|~3.0|~4.0"
+    },
+    "require-dev": {
+        "h4cc/wkhtmltopdf-i386": "For using wkhtmltopdf without installing it globally. This package provides a 32 bit binary."
+    },
+    "suggest": {
+
     },
     "autoload": {
         "psr-4": { "Wucdbm\\Bundle\\PdfGeneratorBundle\\": "" }
